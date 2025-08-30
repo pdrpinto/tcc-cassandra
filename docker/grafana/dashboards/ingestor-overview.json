@@ -1,0 +1,45 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "title": "Ingestor Overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Latency p50/p95/p99 (ms)",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 9 },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(latencias_operacao_ms_bucket[1m])) by (le, rota))", "legendFormat": "p50 {{rota}}" },
+        { "expr": "histogram_quantile(0.95, sum(rate(latencias_operacao_ms_bucket[1m])) by (le, rota))", "legendFormat": "p95 {{rota}}" },
+        { "expr": "histogram_quantile(0.99, sum(rate(latencias_operacao_ms_bucket[1m])) by (le, rota))", "legendFormat": "p99 {{rota}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests por segundo (estimado)",
+      "gridPos": { "x": 0, "y": 9, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(latencias_operacao_ms_count[1m])) by (rota)", "legendFormat": "rps {{rota}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Erros por rota (rate)",
+      "gridPos": { "x": 12, "y": 9, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(errors_por_rota_total[1m])) by (rota, motivo)", "legendFormat": "{{rota}} {{motivo}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency por consistência (p95)",
+      "gridPos": { "x": 0, "y": 17, "w": 24, "h": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(latencias_operacao_ms_bucket[1m])) by (le, consistencia))", "legendFormat": "p95 {{consistencia}}" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "id": null,
+  "uid": "stress-go-overview",
+  "title": "Stress Go - Overview",
+  "timezone": "",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "tags": ["stress", "go"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s","10s","30s","1m","5m"] },
+  "templating": {
+    "list": [
+      {
+        "name": "consistencia",
+        "type": "query",
+        "datasource": {"type": "prometheus", "uid": "Prometheus"},
+        "refresh": 1,
+        "hide": 0,
+        "definition": "label_values(stress_write_latency_ms_bucket, consistencia)",
+        "query": "label_values(stress_write_latency_ms_bucket, consistencia)",
+        "multi": true,
+        "includeAll": true,
+        "current": {"text": "All", "value": "$__all"}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Requests/s",
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "sum(rate(stress_write_latency_ms_count[1m]))",
+          "legendFormat": "total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency p50/p95/p99 (ms)",
+      "gridPos": {"h": 8, "w": 18, "x": 6, "y": 0},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(stress_write_latency_ms_bucket{consistencia=~\"$consistencia\"}[1m])))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(stress_write_latency_ms_bucket{consistencia=~\"$consistencia\"}[1m])))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(stress_write_latency_ms_bucket{consistencia=~\"$consistencia\"}[1m])))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests/s por consistência",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+      "targets": [
+        {
+          "expr": "sum by (consistencia) (rate(stress_write_latency_ms_count[1m]))",
+          "legendFormat": "{{consistencia}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "bargauge",
+      "title": "Erros por motivo (5m)",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+      "options": {"displayMode": "lcd"},
+      "targets": [
+        {
+          "expr": "sum by (motivo) (increase(stress_errors_total[5m]))",
+          "legendFormat": "{{motivo}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

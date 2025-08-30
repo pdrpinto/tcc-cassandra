@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'ingestor'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+        labels:
+          service: 'ingestor'
+
+  - job_name: 'go_stress'
+    static_configs:
+      - targets: ['stress_go:9100']
+        labels:
+          service: 'go-stress'
+
+  # Opcional: node exporters ou outros alvos no futuro
